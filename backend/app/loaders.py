@@ -63,27 +63,22 @@ def load_faqs(path: str) -> list[dict]:
 
 # ---------- Health facilities (CSV) ----------
 
+# Only these 4 raw columns ever get read downstream (app/facilities.py, app/bot.py) —
+# the survey has ~29 columns total, so restricting to these at parse time (rather
+# than loading everything and dropping most of it after) is a real memory win,
+# not just tidiness. This matters on memory-constrained hosts (e.g. Render's free
+# 512Mi tier), where loading all 29 columns of a 34k-row CSV at startup alongside
+# the embedding model can be the difference between booting and OOM-killed.
+_FACILITY_COLUMNS = ["unique_lga", "facility_type_display", "num_doctors_fulltime", "management"]
+
+
 def load_health_facilities(path: str) -> pd.DataFrame:
-    df = pd.read_csv(path, encoding="utf-8")
+    df = pd.read_csv(path, encoding="utf-8", usecols=_FACILITY_COLUMNS)
 
-    bool_cols = [
-        "maternal_health_delivery_services", "emergency_transport",
-        "skilled_birth_attendant", "phcn_electricity", "c_section_yn",
-        "child_health_measles_immun_calc", "improved_water_supply",
-        "improved_sanitation", "vaccines_fridge_freezer",
-        "antenatal_care_yn", "family_planning_yn",
-        "malaria_treatment_artemisinin",
-    ]
-    for col in bool_cols:
-        df[col] = df[col].map({True: True, "True": True, False: False, "False": False})
-        # NaN stays NaN: unknown is unknown, not False
-
-    staff_cols = ["num_doctors_fulltime", "num_nurses_fulltime",
-                  "num_nursemidwives_fulltime", "num_chews_fulltime"]
-    df[staff_cols] = df[staff_cols].apply(pd.to_numeric, errors="coerce")
+    df["num_doctors_fulltime"] = pd.to_numeric(df["num_doctors_fulltime"], errors="coerce")
 
     parts = df["unique_lga"].str.rsplit("_", n=1, expand=True)
     df["state"] = parts[0].str.replace("_", " ").str.title()
     df["lga"] = parts[1].str.title()
 
-    return df.drop(columns=["gps", "formhub_photo_id", "survey_id", "sector"])
+    return df.drop(columns=["unique_lga"])
