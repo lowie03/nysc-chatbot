@@ -1,0 +1,9 @@
+pandas
+openpyxl
+numpy
+sentence-transformers
+fastapi
+uvicorn
+rapidfuzz
+python-dotenv
+anthropic
