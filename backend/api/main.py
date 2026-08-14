@@ -14,7 +14,7 @@ bot = NYSCBot()          # loaded ONCE at startup — model, corpus, 34k rows
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://nysc-chatbot-delta.vercel.app/",   # TODO: replace with your real Vercel URL
+        "https://nysc-chatbot-delta.vercel.app",
         "http://localhost:5173",
     ],
     allow_methods=["POST", "GET"],
