@@ -4,8 +4,7 @@ WORKDIR /build
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
-RUN npm run build          # WORKDIR is /build, and outDir "../static" resolves
-                            # relative to that, so this writes to /static
+RUN npm run build          # outDir "dist" (Vite default), so this writes to /build/dist
 
 # ---- runtime ----
 FROM python:3.11-slim
@@ -33,7 +32,7 @@ COPY --chown=user backend/ ./
 # logic as runtime, so there's no risk of the baked cache hash not matching.
 RUN python -c "from app.bot import NYSCBot; NYSCBot()"
 
-COPY --chown=user --from=frontend /static ./static
+COPY --chown=user --from=frontend /build/dist ./static
 
 EXPOSE 7860
 CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

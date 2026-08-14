@@ -9,5 +9,5 @@ export default defineConfig({
       '/debug': 'http://localhost:8000',
     },
   },
-  build: { outDir: '../static', emptyOutDir: true },
+  build: { outDir: 'dist', emptyOutDir: true },
 })

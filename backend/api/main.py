@@ -4,11 +4,22 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from app.bot import NYSCBot
 
 app = FastAPI(title="NYSC FAQ Chatbot")
 bot = NYSCBot()          # loaded ONCE at startup — model, corpus, 34k rows
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://your-project.vercel.app",   # TODO: replace with your real Vercel URL
+        "http://localhost:5173",
+    ],
+    allow_methods=["POST", "GET"],
+    allow_headers=["Content-Type"],
+)
 
 
 class ChatRequest(BaseModel):

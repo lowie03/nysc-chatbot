@@ -1,5 +1,7 @@
+const API_BASE = import.meta.env.VITE_API_URL ?? ''   // '' = same origin (Render)
+
 export async function askBot(question) {
-  const res = await fetch('/chat', {
+  const res = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ question }),
