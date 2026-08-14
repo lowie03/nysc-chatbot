@@ -15,7 +15,12 @@ CACHE_PATH = "data/embeddings_cache.npz"
 class Retriever:
     def __init__(self, docs: list[dict], use_cache: bool = True):
         self.docs = docs
-        self.model = TextEmbedding(MODEL_NAME)
+        # threads=1: on constrained hosts (e.g. Render's free tier), containers
+        # often report the host's full core count via os.cpu_count() rather than
+        # the fraction actually allocated to them — left unset, onnxruntime sizes
+        # its thread pool off that inflated number, burning memory on threads
+        # that don't help throughput anyway on a fractional-vCPU instance.
+        self.model = TextEmbedding(MODEL_NAME, threads=1)
         self.vocab = build_vocab(docs)
         texts = [d.get("embed_text", d["text"]) for d in docs]
         corpus_hash = self._corpus_hash(texts)
