@@ -1,7 +1,7 @@
+fastembed
 pandas
 openpyxl
 numpy
-sentence-transformers
 fastapi
 uvicorn
 rapidfuzz
